@@ -13,18 +13,26 @@ jobs:
           channel: 'stable'
           flutter-version: '3.19.0'
 
-      - name: Auto-Generate Project Folders
+      - name: Auto-Generate Project & Rename
         run: |
-          # This generates the Android folders automatically
           flutter create --platforms android .
           
-          # This adds the Camera permission
+          # Change App Name to "View Me"
+          sed -i 's/android:label="product_catalog"/android:label="View Me"/' android/app/src/main/AndroidManifest.xml
+          
+          # Add Camera Permissions
           sed -i '/<application/i \    <uses-permission android:name="android.permission.CAMERA" />' android/app/src/main/AndroidManifest.xml
           
-          # This sets the App Name
-          sed -i 's/android:label="product_catalog"/android:label="My Catalog"/' android/app/src/main/AndroidManifest.xml
+          # Replace logo if you uploaded app_icon.png
+          if [ -f "app_icon.png" ]; then
+            cp app_icon.png android/app/src/main/res/mipmap-mdpi/ic_launcher.png
+            cp app_icon.png android/app/src/main/res/mipmap-hdpi/ic_launcher.png
+            cp app_icon.png android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
+            cp app_icon.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+            cp app_icon.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          fi
 
-      - name: Build Debug APK
+      - name: Build APK
         run: |
           flutter pub get
           flutter build apk --debug
@@ -32,5 +40,5 @@ jobs:
       - name: Upload Finished APK
         uses: actions/upload-artifact@v4
         with:
-          name: My-Product-Catalog-App
+          name: View-Me-App
           path: build/app/outputs/flutter-apk/app-debug.apk
